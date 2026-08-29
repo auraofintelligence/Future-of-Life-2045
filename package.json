@@ -1,0 +1,10 @@
+{
+  "name": "future-of-life-2045",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check assets/site.js && node --check assets/explorers.js && node tools/check-site.mjs",
+    "build": "npm run check"
+  }
+}
