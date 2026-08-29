@@ -3,6 +3,7 @@ const pages = [
   ["life-in-2045.html", "Life in 2045"],
   ["family.html", "Family"],
   ["earth.html", "Earth"],
+  ["subterranean-cities.html", "Cities of Light"],
   ["intelligence.html", "Intelligence"],
   ["timeline.html", "Timeline"],
   ["network.html", "Project network"]
@@ -32,7 +33,8 @@ if (footer) {
         </div>
         <div>
           <h2>Connected worlds</h2>
-          <a href="https://globalgroupmarriages.com">Global Group Marriages</a>
+          <a href="https://auraofintelligence.github.io/global-group-marriages/">Global Group Marriages</a>
+          <a href="https://auraofintelligence.github.io/subterranean-cities.html">Subterranean Eco-Cities</a>
           <a href="https://auraofintelligence.github.io/gajra-earth-claude-build/">GAJRA Earth Claude build</a>
           <a href="https://auraofintelligence.github.io/GAJRA-earth-infinity/">GAJRA Earth Infinity</a>
           <a href="https://auraofintelligence.github.io/">Aura of Intelligence</a>

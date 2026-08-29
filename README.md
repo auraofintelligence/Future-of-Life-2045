@@ -7,8 +7,9 @@ Luke has developed the larger plan since 2010. In 2022, he adapted part of it fo
 ## The site
 
 - explores two source-grounded days in 2045
-- presents global group marriage as a positive family framework
-- includes interactive models for family capacity, a subterranean civilisation, horn-torus geometry and the 2045 timeline
+- presents global group marriage as a positive family framework at household, U.N. of Love and 400-plus-adult scales
+- includes an uncapped family constellation model, a dedicated source-led Subterranean Cities of Light destination, horn-torus geometry and the 2045 timeline
+- separates operating underground precedents, proposed integration pathways and the authored 2045 civilisation
 - connects the wider public project ecosystem
 - labels original vision, active public work and proposed or speculative horizons separately
 - uses generated raster imagery and code-based interaction, with no SVG assets

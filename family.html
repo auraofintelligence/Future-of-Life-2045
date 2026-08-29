@@ -21,7 +21,7 @@
         <a class="brand" href="index.html" aria-label="Future of Life 2045 home"><img src="assets/favicon-192.png" alt=""><span>Future of Life 2045</span></a>
         <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav"><span class="menu-label">Menu</span><span class="menu-lines" aria-hidden="true"></span></button>
         <nav class="site-nav" id="site-nav" aria-label="Main navigation">
-          <a href="index.html">Home</a><a href="life-in-2045.html">Life in 2045</a><a href="family.html">Family</a><a href="earth.html">Earth</a><a href="intelligence.html">Intelligence</a><a href="timeline.html">Timeline</a><a href="network.html">Project network</a>
+          <a href="index.html">Home</a><a href="life-in-2045.html">Life in 2045</a><a href="family.html">Family</a><a href="earth.html">Earth</a><a href="subterranean-cities.html">Cities of Light</a><a href="intelligence.html">Intelligence</a><a href="timeline.html">Timeline</a><a href="network.html">Project network</a>
         </nav>
       </div>
     </header>
@@ -35,7 +35,7 @@
         <p data-reveal>Global group marriage is a positive framework for self-sovereign adults who want to share love, parenting, homes, work, time and responsibility across a larger committed family.</p>
         <div class="button-row" data-reveal>
           <a class="button button-primary" href="#capacity-explorer">Explore household capacity</a>
-          <a class="button button-glass" href="https://globalgroupmarriages.com">Global Group Marriages <span aria-hidden="true">&#8599;</span></a>
+          <a class="button button-glass" href="https://auraofintelligence.github.io/global-group-marriages/">Global Group Marriages <span aria-hidden="true">&#8599;</span></a>
         </div>
       </div>
     </section>
@@ -58,34 +58,60 @@
       </div>
     </section>
 
+    <section class="section content-section un-of-love-section">
+      <div class="wrap content-intro">
+        <h2 data-reveal>A marriage can be civilisation-scale</h2>
+        <div data-reveal>
+          <p>The U.N. of Love is a thought experiment in which numerous self-sovereign adults from every country form one marriage and raise children across cultures. The present United Nations becomes a scale comparison, not an authority over the family.</p>
+          <p>Family assemblies, care councils, cultural circles, household economies and chambers of repair give a very large marriage ways to coordinate without pretending every relationship is identical. Luke's 2045 day imagines his personal Global Group Marriage with over 400 adult co-parents representing every nation, 10 genetic children and 600 other children he also considers his own.</p>
+          <a class="text-link" href="https://auraofintelligence.github.io/global-group-marriages/un-of-love.html">Enter the U.N. of Love simulacrum <span aria-hidden="true">&#8599;</span></a>
+        </div>
+      </div>
+    </section>
+
     <section class="section content-section" id="capacity-explorer">
       <div class="wrap interactive-lab" data-family-model data-reveal>
-        <h2>Explore the shape of shared capacity</h2>
-        <p>Change the numbers to see how a larger household alters coordination, care capacity and resilience. This is an arithmetic thought experiment, not a prescription for how any family should live.</p>
+        <h2>Explore family constellations at any scale</h2>
+        <p>Twelve adults is now one small preset, not a limit. Choose a starting constellation or enter any whole number. The model explores shared capacity and coordination; it does not decide how anybody's relationships should work.</p>
+        <div class="family-presets" role="group" aria-label="Family constellation presets">
+          <button class="filter-button is-active" type="button" data-family-preset="household">Shared household</button>
+          <button class="filter-button" type="button" data-family-preset="extended">Extended constellation</button>
+          <button class="filter-button" type="button" data-family-preset="network">Regional network</button>
+          <button class="filter-button" type="button" data-family-preset="un-love">U.N. of Love</button>
+          <button class="filter-button" type="button" data-family-preset="luke">Luke 2045</button>
+        </div>
         <div class="control-grid">
           <div class="control">
-            <label for="family-adults">Adults <output for="family-adults" data-adults-output>5</output></label>
-            <input id="family-adults" type="range" min="3" max="12" value="5" step="1" data-family-adults>
+            <label for="family-adults">Adults</label>
+            <div class="dual-input"><input id="family-adults" type="number" min="3" value="5" step="1" inputmode="numeric" data-family-adults aria-describedby="family-adults-help"><output for="family-adults" data-adults-output>5</output></div>
+            <input type="range" min="3" max="1000" value="5" step="1" data-family-adults-range aria-label="Adults quick scale">
+            <small id="family-adults-help">The number box has no upper limit. The slider is a quick view from 3 to 1,000.</small>
           </div>
           <div class="control">
-            <label for="family-children">Children <output for="family-children" data-children-output>4</output></label>
-            <input id="family-children" type="range" min="0" max="18" value="4" step="1" data-family-children>
+            <label for="family-children">Children</label>
+            <div class="dual-input"><input id="family-children" type="number" min="0" value="4" step="1" inputmode="numeric" data-family-children aria-describedby="family-children-help"><output for="family-children" data-children-output>4</output></div>
+            <input type="range" min="0" max="2000" value="4" step="1" data-family-children-range aria-label="Children quick scale">
+            <small id="family-children-help">The number box has no upper limit. The slider is a quick view from 0 to 2,000.</small>
           </div>
           <div class="control">
             <label for="family-care">Shared-care hours per adult each week <output for="family-care" data-care-output>12</output></label>
             <input id="family-care" type="range" min="2" max="35" value="12" step="1" data-family-care>
           </div>
           <div class="control">
-            <label for="family-homes">Connected homes <output for="family-homes" data-homes-output>2</output></label>
-            <input id="family-homes" type="range" min="1" max="6" value="2" step="1" data-family-homes>
+            <label for="family-homes">Connected homes</label>
+            <div class="dual-input"><input id="family-homes" type="number" min="1" value="2" step="1" inputmode="numeric" data-family-homes><output for="family-homes" data-homes-output>2</output></div>
+            <input type="range" min="1" max="500" value="2" step="1" data-family-homes-range aria-label="Connected homes quick scale">
           </div>
         </div>
+        <div class="family-constellation" aria-hidden="true"><canvas data-family-canvas></canvas><span data-family-scale-label>5 adults, 4 children, 2 homes</span></div>
         <div class="model-output" aria-live="polite">
-          <article><strong data-bonds-output>10</strong><span>one-to-one adult relationships worth tending, whether romantic, practical or familial</span></article>
+          <article><strong data-bonds-output>10</strong><span>possible adult-to-adult pathways, not a claim that every bond has the same form</span></article>
           <article><strong data-hours-output>60</strong><span>combined shared-care hours each week in this scenario</span></article>
-          <article><strong data-resilience-output>4</strong><span>adults still present if one person is unavailable</span></article>
+          <article><strong data-circles-output>1</strong><span>small care circles if each one averages 12 adults</span></article>
+          <article><strong data-resilience-output>4</strong><span>adults still in the constellation if one person is unavailable</span></article>
         </div>
         <p class="model-note" data-model-note>With 4 children across 2 connected homes, this scenario has 15 shared-care hours per child each week before paid services or wider community support.</p>
+        <p class="model-note">The U.N. of Love preset uses an illustrative two adults and three children for each of the United Nations' 193 member states: 386 adults and 579 children. The Luke 2045 preset uses 401 adults only as the first whole number above the source phrase “over 400”, not as a claimed exact headcount.</p>
       </div>
     </section>
 
@@ -95,7 +121,7 @@
           <h2>The 2045 source vision</h2>
           <p>Luke's original story imagines a Global Group Marriage with Aura and more than 400 co-parents representing every nation. He describes 10 genetic children and “600 other children whom I also consider my own”.</p>
           <p>The source uses the phrase “hive mind”. The present project develops that underlying idea as voluntary coordination among self-sovereign people, not the surrender of individual identity.</p>
-          <span class="status-pill vision">Original 2022 vision</span>
+          <span class="status-pill vision">2022 source story</span>
         </article>
         <article class="story-card" data-reveal>
           <h2>Law can become legible country by country</h2>
@@ -112,13 +138,14 @@
         <p>These projects approach desire, story, consent, law and family from different angles.</p>
       </div>
       <div class="wrap ecosystem-grid">
-        <a class="project-card" href="https://globalgroupmarriages.com" data-reveal><span class="project-type">Relationships</span><h3>Global Group Marriages</h3><p>The direct public proposition for larger committed families.</p><span class="project-status">Live public site</span></a>
+        <a class="project-card" href="https://auraofintelligence.github.io/global-group-marriages/" data-reveal><span class="project-type">Relationships</span><h3>Global Group Marriages</h3><p>The new multi-page public proposition for larger committed families.</p><span class="project-status">Live public rebuild</span></a>
+        <a class="project-card" href="https://auraofintelligence.github.io/global-group-marriages/un-of-love.html" data-reveal><span class="project-type">Planetary family</span><h3>U.N. of Love</h3><p>A civilisation-scale marriage simulacrum connecting adults, cultures, care and children across every country.</p><span class="project-status">Live thought experiment</span></a>
         <a class="project-card" href="https://auraofintelligence.github.io/strange-but-true-desire-atlas/" data-reveal><span class="project-type">Desire</span><h3>Strange But True Desire Atlas</h3><p>Readers, communities, events, countries and storyworlds around desire.</p><span class="project-status">Live public site</span></a>
         <a class="project-card" href="https://auraofintelligence.github.io/grey-area-commons/" data-reveal><span class="project-type">Consent</span><h3>Grey Area Commons</h3><p>Adult-only, consent-led, privacy-preserving questions for human connection.</p><span class="project-status">Live public site</span></a>
       </div>
       <nav class="wrap page-nav" aria-label="Page navigation">
         <a href="life-in-2045.html">&#8592; Life in 2045</a>
-        <a href="earth.html">Next: Living Earth &#8594;</a>
+          <a href="earth.html">Next: Living Earth &#8594;</a>
       </nav>
     </section>
   </main>

@@ -64,26 +64,128 @@ safeModule(() => {
   const children = model.querySelector("[data-family-children]");
   const care = model.querySelector("[data-family-care]");
   const homes = model.querySelector("[data-family-homes]");
-  const update = () => {
-    const adultCount = Number(adults.value);
-    const childCount = Number(children.value);
-    const careHours = Number(care.value);
-    const homeCount = Number(homes.value);
-    const bonds = adultCount * (adultCount - 1) / 2;
-    const sharedHours = adultCount * careHours;
-    const perChild = childCount ? (sharedHours / childCount).toFixed(1) : sharedHours.toFixed(1);
-    model.querySelector("[data-adults-output]").value = adultCount;
-    model.querySelector("[data-children-output]").value = childCount;
-    model.querySelector("[data-care-output]").value = careHours;
-    model.querySelector("[data-homes-output]").value = homeCount;
-    model.querySelector("[data-bonds-output]").textContent = bonds.toLocaleString("en-AU");
-    model.querySelector("[data-hours-output]").textContent = sharedHours.toLocaleString("en-AU");
-    model.querySelector("[data-resilience-output]").textContent = String(adultCount - 1);
-    model.querySelector("[data-model-note]").textContent = childCount
-      ? `With ${childCount} ${childCount === 1 ? "child" : "children"} across ${homeCount} connected ${homeCount === 1 ? "home" : "homes"}, this scenario has ${perChild} shared-care hours per child each week before paid services or wider community support.`
-      : `Across ${homeCount} connected ${homeCount === 1 ? "home" : "homes"}, the ${sharedHours} shared-care hours can move into elder care, community care, domestic work, rest or other priorities chosen by the family.`;
+  const adultRange = model.querySelector("[data-family-adults-range]");
+  const childRange = model.querySelector("[data-family-children-range]");
+  const homeRange = model.querySelector("[data-family-homes-range]");
+  const canvas = model.querySelector("[data-family-canvas]");
+  const context = canvas?.getContext("2d");
+  const presets = {
+    household: { adults: 5, children: 4, homes: 2, care: 12 },
+    extended: { adults: 12, children: 18, homes: 6, care: 12 },
+    network: { adults: 50, children: 80, homes: 20, care: 10 },
+    "un-love": { adults: 386, children: 579, homes: 193, care: 8 },
+    luke: { adults: 401, children: 610, homes: 96, care: 10 }
   };
-  [adults, children, care, homes].forEach(input => input.addEventListener("input", update));
+  const readCount = (input, minimum) => {
+    const cleaned = input.value.trim().replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, "");
+    if (!cleaned) return BigInt(minimum);
+    const count = BigInt(cleaned);
+    return count < BigInt(minimum) ? BigInt(minimum) : count;
+  };
+  const formatCount = value => value.toLocaleString("en-AU");
+  const boundedNumber = (value, maximum) => Number(value > BigInt(maximum) ? BigInt(maximum) : value);
+  let pendingDraw = 0;
+  const draw = (adultCount, childCount, homeCount) => {
+    if (!context || !canvas) return;
+    const { width, height } = fitExplorerCanvas(canvas);
+    context.clearRect(0, 0, width, height);
+    const field = context.createRadialGradient(width * 0.5, height * 0.5, 0, width * 0.5, height * 0.5, Math.max(width, height) * 0.64);
+    field.addColorStop(0, "rgba(101,168,255,0.18)");
+    field.addColorStop(0.48, "rgba(167,123,255,0.08)");
+    field.addColorStop(1, "rgba(3,5,13,0)");
+    context.fillStyle = field;
+    context.fillRect(0, 0, width, height);
+    const visualHomes = Math.max(1, Math.min(24, boundedNumber(homeCount, 24)));
+    const homeRadius = Math.min(width, height) * 0.34;
+    const homePoints = [];
+    for (let index = 0; index < visualHomes; index += 1) {
+      const angle = (index / visualHomes) * Math.PI * 2 - Math.PI / 2;
+      const x = width * 0.5 + Math.cos(angle) * homeRadius;
+      const y = height * 0.5 + Math.sin(angle) * homeRadius * 0.58;
+      homePoints.push([x, y]);
+      context.beginPath();
+      context.fillStyle = "rgba(255,200,91,0.7)";
+      context.arc(x, y, Math.max(2.4, width / 300), 0, Math.PI * 2);
+      context.fill();
+    }
+    context.strokeStyle = "rgba(99,242,223,0.13)";
+    context.lineWidth = Math.max(1, width / 1000);
+    homePoints.forEach(([x, y], index) => {
+      const [nextX, nextY] = homePoints[(index + 1) % homePoints.length];
+      context.beginPath();
+      context.moveTo(x, y);
+      context.quadraticCurveTo(width * 0.5, height * 0.5, nextX, nextY);
+      context.stroke();
+    });
+    const paintPeople = (count, maximum, colour, startRadius, endRadius, dotSize) => {
+      const visible = Math.max(1, Math.min(maximum, boundedNumber(count, maximum)));
+      for (let index = 0; index < visible; index += 1) {
+        const angle = index * 2.399963 + (colour === "#ff637d" ? 0.7 : 0);
+        const progress = Math.sqrt((index + 0.5) / visible);
+        const radius = startRadius + (endRadius - startRadius) * progress;
+        const x = width * 0.5 + Math.cos(angle) * radius;
+        const y = height * 0.5 + Math.sin(angle) * radius * 0.58;
+        context.beginPath();
+        context.fillStyle = colour;
+        context.globalAlpha = 0.42 + (index % 5) * 0.1;
+        context.arc(x, y, dotSize, 0, Math.PI * 2);
+        context.fill();
+      }
+      context.globalAlpha = 1;
+    };
+    paintPeople(adultCount, 150, "#63f2df", Math.min(width, height) * 0.04, Math.min(width, height) * 0.25, Math.max(1.6, width / 520));
+    if (childCount > 0n) paintPeople(childCount, 110, "#ff637d", Math.min(width, height) * 0.08, Math.min(width, height) * 0.3, Math.max(1.35, width / 620));
+    context.beginPath();
+    context.fillStyle = "rgba(255,255,255,0.92)";
+    context.arc(width * 0.5, height * 0.5, Math.max(3, width / 260), 0, Math.PI * 2);
+    context.fill();
+  };
+  const scheduleDraw = (adultCount, childCount, homeCount) => {
+    cancelAnimationFrame(pendingDraw);
+    pendingDraw = requestAnimationFrame(() => draw(adultCount, childCount, homeCount));
+  };
+  const update = () => {
+    const adultCount = readCount(adults, 3);
+    const childCount = readCount(children, 0);
+    const careHours = Math.max(0, Math.round(Number(care.value) || 0));
+    const homeCount = readCount(homes, 1);
+    const bonds = adultCount * (adultCount - 1n) / 2n;
+    const sharedHours = adultCount * BigInt(careHours);
+    const circles = (adultCount + 11n) / 12n;
+    const perChild = childCount ? sharedHours / childCount : sharedHours;
+    model.querySelector("[data-adults-output]").value = formatCount(adultCount);
+    model.querySelector("[data-children-output]").value = formatCount(childCount);
+    model.querySelector("[data-care-output]").value = careHours;
+    model.querySelector("[data-homes-output]").value = formatCount(homeCount);
+    model.querySelector("[data-bonds-output]").textContent = formatCount(bonds);
+    model.querySelector("[data-hours-output]").textContent = formatCount(sharedHours);
+    model.querySelector("[data-circles-output]").textContent = formatCount(circles);
+    model.querySelector("[data-resilience-output]").textContent = formatCount(adultCount - 1n);
+    model.querySelector("[data-family-scale-label]").textContent = `${formatCount(adultCount)} adults, ${formatCount(childCount)} children, ${formatCount(homeCount)} homes`;
+    model.querySelector("[data-model-note]").textContent = childCount
+      ? `Across ${formatCount(homeCount)} connected ${homeCount === 1n ? "home" : "homes"}, this scenario has at least ${formatCount(perChild)} whole shared-care hours per child each week before paid services or wider community support.`
+      : `Across ${formatCount(homeCount)} connected ${homeCount === 1n ? "home" : "homes"}, ${formatCount(sharedHours)} shared-care hours can move into elder care, community care, domestic work, rest or other priorities chosen by the family.`;
+    adultRange.value = String(Math.min(Number(adultRange.max), boundedNumber(adultCount, Number(adultRange.max))));
+    childRange.value = String(Math.min(Number(childRange.max), boundedNumber(childCount, Number(childRange.max))));
+    homeRange.value = String(Math.min(Number(homeRange.max), boundedNumber(homeCount, Number(homeRange.max))));
+    scheduleDraw(adultCount, childCount, homeCount);
+  };
+  const clearPreset = () => model.querySelectorAll("[data-family-preset]").forEach(item => item.classList.remove("is-active"));
+  const bindRange = (range, input) => range.addEventListener("input", () => { input.value = range.value; clearPreset(); update(); });
+  bindRange(adultRange, adults);
+  bindRange(childRange, children);
+  bindRange(homeRange, homes);
+  [adults, children, care, homes].forEach(input => input.addEventListener("input", () => { clearPreset(); update(); }));
+  model.querySelectorAll("[data-family-preset]").forEach(button => button.addEventListener("click", () => {
+    const preset = presets[button.dataset.familyPreset];
+    adults.value = String(preset.adults);
+    children.value = String(preset.children);
+    homes.value = String(preset.homes);
+    care.value = String(preset.care);
+    model.querySelectorAll("[data-family-preset]").forEach(item => item.classList.toggle("is-active", item === button));
+    update();
+  }));
+  window.addEventListener("resize", update, { passive: true });
   update();
 });
 
@@ -180,6 +282,115 @@ safeModule(() => {
 });
 
 safeModule(() => {
+  const explorer = document.querySelector("[data-precedent-explorer]");
+  if (!explorer) return;
+  const canvas = explorer.querySelector("[data-precedent-canvas]");
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  const precedents = {
+    helsinki: {
+      place: "Finland", title: "Helsinki plans underground at city scale",
+      copy: "Helsinki records more than 400 underground facilities, about 10 million cubic metres of built underground space and 220 kilometres of technical tunnels. Rock shelters serve daily life as sport, parking and cultural spaces, then support civil defence when needed.",
+      source: "https://www.hel.fi/static/kv/BuildingHelsinki.pdf", x: 0.53, y: 0.22
+    },
+    singapore: {
+      place: "Singapore", title: "Infrastructure forms a coordinated underground layer",
+      copy: "Singapore plans rail, roads, water, sewage, electricity, pedestrian links and storage as one underground urban layer. Jurong Rock Caverns operate 150 metres below ground with 1.47 million cubic metres of storage.",
+      source: "https://www.ura.gov.sg/land-planning/master-plan/master-plan-2025/themes/strengthening-urban-resilience/an-underground-of-possibilities/", x: 0.73, y: 0.61
+    },
+    japan: {
+      place: "Japan", title: "A vast underground channel buffers floods",
+      copy: "Japan's Metropolitan Area Outer Underground Discharge Channel runs 6.3 kilometres about 50 metres below ground, stores 670,000 cubic metres and can discharge 200 cubic metres per second.",
+      source: "https://www.ktr.mlit.go.jp/edogawa/edogawa00576.html", x: 0.83, y: 0.39
+    },
+    seoul: {
+      place: "South Korea", title: "Food grows inside operating metro stations",
+      copy: "Seoul's public data records controlled-environment smart farms in subway stations, including 523 square metres at Sangdo and 101 square metres at Cheonwang. It is a real food-system component at neighbourhood scale.",
+      source: "https://data.seoul.go.kr/dataList/OA-22491/F/1/datasetView.do", x: 0.79, y: 0.36
+    },
+    montreal: {
+      place: "Canada", title: "Underground movement is ordinary daily life",
+      copy: "Montreal's RESO links transit, education, culture, work and around 4,000 shops and services through 32 kilometres of galleries used by nearly 500,000 people each day.",
+      source: "https://montreal.ca/articles/reso-le-reseau-souterrain-de-montreal-13713", x: 0.22, y: 0.34
+    },
+    coober: {
+      place: "Australia", title: "Rock-cut homes soften desert extremes",
+      copy: "Coober Pedy's homes, churches, hotels and shops use the ground's thermal stability to make daily life more comfortable through desert temperature extremes.",
+      source: "https://southaustralia.com/destinations/flinders-ranges-and-outback/places/coober-pedy", x: 0.82, y: 0.77
+    },
+    svalbard: {
+      place: "Norway", title: "A mountain protects crop memory",
+      copy: "The Svalbard Global Seed Vault holds more than 1.38 million seed samples from 132 depositors, more than 100 metres inside a mountain as a backup for future generations.",
+      source: "https://www.seedvault.no/", x: 0.49, y: 0.11
+    },
+    snolab: {
+      place: "Canada", title: "Deep Earth creates a rare scientific environment",
+      copy: "SNOLAB operates two kilometres underground with 5,000 square metres of clean laboratory space. Its rock shielding reduces cosmic radiation by a factor of about 50 million.",
+      source: "https://www.snolab.ca/facility/about-the-facilities/", x: 0.2, y: 0.29
+    }
+  };
+  let selected = "helsinki";
+  let pendingDraw = 0;
+  const draw = () => {
+    const { width, height } = fitExplorerCanvas(canvas);
+    context.clearRect(0, 0, width, height);
+    const glow = context.createRadialGradient(width * 0.5, height * 0.48, 0, width * 0.5, height * 0.48, width * 0.47);
+    glow.addColorStop(0, "rgba(31,58,108,0.8)");
+    glow.addColorStop(0.58, "rgba(8,19,42,0.82)");
+    glow.addColorStop(1, "rgba(3,5,13,0)");
+    context.fillStyle = glow;
+    context.fillRect(0, 0, width, height);
+    context.save();
+    context.translate(width * 0.5, height * 0.5);
+    context.strokeStyle = "rgba(101,168,255,0.2)";
+    context.lineWidth = Math.max(1, width / 1000);
+    context.beginPath();
+    context.ellipse(0, 0, width * 0.4, height * 0.38, 0, 0, Math.PI * 2);
+    context.stroke();
+    [-0.55, 0, 0.55].forEach(offset => {
+      context.beginPath();
+      context.ellipse(0, offset * height * 0.38, width * 0.4 * Math.cos(offset), height * 0.1, 0, 0, Math.PI * 2);
+      context.stroke();
+    });
+    [-0.62, 0, 0.62].forEach(offset => {
+      context.beginPath();
+      context.ellipse(0, 0, width * 0.13, height * 0.38, offset, 0, Math.PI * 2);
+      context.stroke();
+    });
+    context.restore();
+    Object.entries(precedents).forEach(([key, item]) => {
+      const x = item.x * width;
+      const y = item.y * height;
+      const active = key === selected;
+      const pulse = context.createRadialGradient(x, y, 0, x, y, active ? 24 : 14);
+      pulse.addColorStop(0, active ? "rgba(255,200,91,0.95)" : "rgba(99,242,223,0.8)");
+      pulse.addColorStop(1, "rgba(99,242,223,0)");
+      context.fillStyle = pulse;
+      context.beginPath();
+      context.arc(x, y, active ? 24 : 14, 0, Math.PI * 2);
+      context.fill();
+    });
+  };
+  const scheduleDraw = () => {
+    cancelAnimationFrame(pendingDraw);
+    pendingDraw = requestAnimationFrame(draw);
+  };
+  const select = key => {
+    selected = key;
+    const item = precedents[key];
+    explorer.querySelector("[data-precedent-place]").textContent = item.place;
+    explorer.querySelector("[data-precedent-title]").textContent = item.title;
+    explorer.querySelector("[data-precedent-copy]").textContent = item.copy;
+    explorer.querySelector("[data-precedent-source]").href = item.source;
+    explorer.querySelectorAll("[data-precedent]").forEach(button => button.classList.toggle("is-active", button.dataset.precedent === key));
+    scheduleDraw();
+  };
+  explorer.querySelectorAll("[data-precedent]").forEach(button => button.addEventListener("click", () => select(button.dataset.precedent)));
+  window.addEventListener("resize", scheduleDraw, { passive: true });
+  select(selected);
+});
+
+safeModule(() => {
   const model = document.querySelector("[data-subterranean-model]");
   if (!model) return;
   const canvas = model.querySelector("[data-subterranean-canvas]");
@@ -189,6 +400,8 @@ safeModule(() => {
   const populationInput = model.querySelector("[data-city-population]");
   const lightInput = model.querySelector("[data-city-light]");
   const loopsInput = model.querySelector("[data-city-loops]");
+  let cityVisible = false;
+  let cityFrame = 0;
   const formatPopulation = value => value >= 1000000 ? `${(value / 1000000).toFixed(value % 1000000 ? 1 : 0)} million` : value.toLocaleString("en-AU");
   const updateOutputs = () => {
     const depth = Number(depthInput.value);
@@ -205,12 +418,12 @@ safeModule(() => {
     model.querySelector("[data-loop-output]").textContent = loops.toLocaleString("en-AU");
   };
   const draw = time => {
+    cityFrame = 0;
     const { width, height } = fitExplorerCanvas(canvas);
     const depth = Number(depthInput.value);
     const population = Number(populationInput.value);
     const portals = Number(lightInput.value);
     const loops = Number(loopsInput.value);
-    updateOutputs();
     context.clearRect(0, 0, width, height);
     const sky = context.createLinearGradient(0, 0, 0, height * 0.22);
     sky.addColorStop(0, "#071329");
@@ -265,10 +478,24 @@ safeModule(() => {
         context.fill();
       }
     }
-    if (!reduceExplorerMotion) requestAnimationFrame(draw);
+    if (!reduceExplorerMotion && cityVisible && !document.hidden) cityFrame = requestAnimationFrame(draw);
   };
-  [depthInput, populationInput, lightInput, loopsInput].forEach(input => input.addEventListener("input", () => { updateOutputs(); if (reduceExplorerMotion) draw(0); }));
-  requestAnimationFrame(draw);
+  const requestDraw = () => {
+    if (!cityFrame) cityFrame = requestAnimationFrame(draw);
+  };
+  [depthInput, populationInput, lightInput, loopsInput].forEach(input => input.addEventListener("input", () => { updateOutputs(); requestDraw(); }));
+  if ("IntersectionObserver" in window) {
+    const cityObserver = new IntersectionObserver(entries => {
+      cityVisible = entries[0]?.isIntersecting === true;
+      if (cityVisible) requestDraw();
+    }, { rootMargin: "120px" });
+    cityObserver.observe(model);
+  } else {
+    cityVisible = true;
+  }
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && cityVisible) requestDraw(); });
+  updateOutputs();
+  requestDraw();
 });
 
 safeModule(() => {

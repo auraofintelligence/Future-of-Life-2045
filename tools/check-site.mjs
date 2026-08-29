@@ -7,6 +7,7 @@ const pages = [
   "life-in-2045.html",
   "family.html",
   "earth.html",
+  "subterranean-cities.html",
   "intelligence.html",
   "timeline.html",
   "network.html"
@@ -25,6 +26,7 @@ for (const page of pages) {
   if (!html.includes("assets/site.js")) errors.push(`${page}: missing shared site behaviour`);
   if (!html.includes('<header class="site-header">')) errors.push(`${page}: missing static navigation fallback`);
   if (!html.includes('<footer class="site-footer">')) errors.push(`${page}: missing static licence footer`);
+  if (!html.includes('href="subterranean-cities.html"')) errors.push(`${page}: missing Cities of Light in static navigation`);
   if (/<svg\b/i.test(html) || /\.svg(?:[?#"'])/i.test(html)) errors.push(`${page}: SVG use found`);
   if (/\u2013|\u2014/.test(html)) errors.push(`${page}: non-ASCII dash found`);
 
@@ -49,6 +51,14 @@ const textFiles = allFiles
 for (const file of textFiles) {
   const source = fs.readFileSync(file, "utf8");
   if (/<svg\b/i.test(source) || /\.svg(?:[?#"')])/i.test(source)) errors.push(`SVG reference found in ${path.relative(root, file)}`);
+  const urls = path.extname(file).toLowerCase() === ".css"
+    ? [...source.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/gi)].map(match => match[1].trim())
+    : [];
+  for (const reference of urls) {
+    if (/^(?:https?:|data:|#|var\()/i.test(reference)) continue;
+    const localPath = path.resolve(path.dirname(file), reference.split("#")[0].split("?")[0]);
+    if (!fs.existsSync(localPath)) errors.push(`${path.relative(root, file)}: missing local CSS image ${reference}`);
+  }
 }
 
 const heroFiles = [
@@ -56,6 +66,7 @@ const heroFiles = [
   "hero-life.webp",
   "hero-family.webp",
   "hero-earth.webp",
+  "hero-subterranean.webp",
   "hero-intelligence.webp",
   "hero-timeline.webp",
   "hero-network.webp"
